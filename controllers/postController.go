@@ -15,13 +15,14 @@ func PostCreate(c *gin.Context) {
 
 	// Get data off body req
 	var body struct {
-		Title string `json:"title"`
-		Body  string `json:"body"`
+		Title    string `json:"title"`
+		Body     string `json:"body"`
+		AuthorId string `json:"author_id"`
 	}
 
 	c.BindJSON(&body)
 
-	post := models.Post{Title: body.Title, Body: body.Body}
+	post := models.Post{Title: body.Title, Body: body.Body, AuthorId: body.AuthorId}
 
 	result := initialize.DB.Create(&post)
 
