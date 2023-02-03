@@ -12,4 +12,7 @@ func init() {
 
 func main() {
 	initialize.DB.AutoMigrate(&models.Post{})
+
+	// drop table
+	//initialize.DB.Migrator().DropTable(&models.CreaditCard{})
 }
