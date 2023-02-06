@@ -47,7 +47,14 @@ func main() {
 			book.GET("/:id", controllers.BookShowByID)
 			book.PUT("/update/:id", controllers.BookUpdate)
 			book.DELETE("/delete/:id", controllers.BookDelete)
-
+		}
+		category := api.Group("/category")
+		{
+			category.GET("/", controllers.CategoryGetting)
+			category.POST("/create", controllers.CategoryCreate)
+			category.GET("/:id", controllers.CategoryShowByID)
+			category.PUT("/update/:id", controllers.CategoryUpdate)
+			category.DELETE("/delete/:id", controllers.CategoryDelete)
 		}
 	}
 	r.Run()

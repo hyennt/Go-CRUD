@@ -17,17 +17,19 @@ func BookGetting(c *gin.Context) {
 
 func BookCreate(c *gin.Context) {
 	var body struct {
-		Title    string `json:"title"`
-		AuthorId uint   `json:"author_id"`
+		Title      string `json:"title"`
+		AuthorId   uint   `json:"author_id"`
+		CategoryId uint   `json:"category_id"`
 	}
 	c.BindJSON(&body)
-	books := models.Book{Title: body.Title, AuthorId: body.AuthorId}
+	books := models.Book{Title: body.Title, AuthorId: body.AuthorId, CategoryId: body.CategoryId}
 	result := initialize.DB.Create(&books)
 	if result.Error != nil {
 		c.Status(400)
 		return
 	}
 	c.IndentedJSON(200, gin.H{
+		"book":    books,
 		"message": "Book created successfully",
 	})
 }
@@ -37,12 +39,21 @@ func BookShowByID(c *gin.Context) {
 	var book models.Book
 	initialize.DB.First(&book, id)
 	c.IndentedJSON(200, gin.H{
-		"book":   book,
-		"author": "/api/author/author_id",
+		"book": book,
+
 		"links": []gin.H{
 			{
 				"method":      "GET",
+				"author":      "/api/author/author_id",
+				"author_id":   book.AuthorId,
 				"description": "Get id of author related to ID book"},
+		},
+		"links_category": []gin.H{
+			{
+				"method":      "GET",
+				"category":    "/api/category/category_id",
+				"category_id": book.CategoryId,
+				"description": "Get id of category related to ID book"},
 		},
 	})
 }
@@ -62,8 +73,10 @@ func BookUpdate(c *gin.Context) {
 	var book models.Book
 	initialize.DB.First(&book, id)
 	var body struct {
-		Title    string `json:"title"`
-		AuthorId uint   `json:"author_id"`
+		Title      string          `json:"title"`
+		AuthorId   uint            `json:"author_id"`
+		CategoryId uint            `json:"category_id"`
+		Category   models.Category `json:"category"`
 	}
 	c.BindJSON(&body)
 	initialize.DB.Model(&book).Updates(models.Book{Title: body.Title, AuthorId: body.AuthorId})
