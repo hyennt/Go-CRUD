@@ -9,4 +9,5 @@ type Post struct {
 	Title    string
 	Body     string
 	AuthorId string
+	Books    []Book `json:"books" gorm:"foreignKey:PostId"`
 }
