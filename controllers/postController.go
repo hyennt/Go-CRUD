@@ -74,8 +74,9 @@ func PostUpdate(c *gin.Context) {
 	var post models.Post
 
 	var body struct {
-		Title string `json:"title"`
-		Body  string `json:"body"`
+		Title    string `json:"title"`
+		Body     string `json:"body"`
+		AuthorId string `json:"author_id"`
 	}
 	c.BindJSON(&body)
 
@@ -83,7 +84,7 @@ func PostUpdate(c *gin.Context) {
 	initialize.DB.First(&post, id)
 
 	//update post
-	initialize.DB.Model(&post).Updates(models.Post{Title: body.Title, Body: body.Body})
+	initialize.DB.Model(&post).Updates(models.Post{Title: body.Title, Body: body.Body, AuthorId: body.AuthorId})
 
 	c.IndentedJSON(200, gin.H{
 		"post": post,

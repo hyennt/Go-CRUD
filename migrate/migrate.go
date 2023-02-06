@@ -12,6 +12,8 @@ func init() {
 
 func main() {
 	initialize.DB.AutoMigrate(&models.Post{})
+	initialize.DB.AutoMigrate(&models.Author{})
+	initialize.DB.AutoMigrate(&models.Book{})
 	// drop table
 	//initialize.DB.Migrator().DropTable(&models.Post{})
 }
