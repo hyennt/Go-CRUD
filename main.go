@@ -36,11 +36,17 @@ func main() {
 		{
 			author.GET("/", controllers.AuthorGetting)
 			author.POST("/create", controllers.AuthorCreate)
+			author.GET("/:id", controllers.AuthorShowByID)
+			author.PUT("/update/:id", controllers.AuthorUpdate)
+			author.DELETE("/delete/:id", controllers.AuthorDelete)
 		}
 		book := api.Group("/book")
 		{
 			book.GET("/", controllers.BookGetting)
 			book.POST("/create", controllers.BookCreate)
+			book.GET("/:id", controllers.BookShowByID)
+			book.PUT("/update/:id", controllers.BookUpdate)
+			book.DELETE("/delete/:id", controllers.BookDelete)
 
 		}
 	}

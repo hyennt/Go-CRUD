@@ -15,31 +15,6 @@ func AuthorGetting(c *gin.Context) {
 	})
 }
 
-func BookGetting(c *gin.Context) {
-	var books []models.Book
-	initialize.DB.Find(&books)
-	c.IndentedJSON(200, gin.H{
-		"books": books,
-	})
-}
-
-func BookCreate(c *gin.Context) {
-	var body struct {
-		Title    string `json:"title"`
-		AuthorId uint   `json:"author_id"`
-	}
-	c.BindJSON(&body)
-	books := models.Book{Title: body.Title, AuthorId: body.AuthorId}
-	result := initialize.DB.Create(&books)
-	if result.Error != nil {
-		c.Status(400)
-		return
-	}
-	c.IndentedJSON(200, gin.H{
-		"message": "Book created successfully",
-	})
-}
-
 func AuthorCreate(c *gin.Context) {
 	var body struct {
 		Name  string `json:"name"`
@@ -59,5 +34,50 @@ func AuthorCreate(c *gin.Context) {
 		"hateoas": []gin.H{
 			{"method": "GET", "href": "/api/author"},
 		},
+	})
+}
+
+func AuthorShowByID(c *gin.Context) {
+	id := c.Param("id")
+	var author models.Author
+	initialize.DB.First(&author, id)
+
+	c.IndentedJSON(200, gin.H{
+		"author": author,
+	})
+}
+
+func AuthorUpdate(c *gin.Context) {
+	id := c.Param("id")
+
+	var author models.Author
+
+	var body struct {
+		Name  string `json:"name"`
+		Books []struct {
+			Title string `json:"title"`
+		} `json:"books"`
+	}
+	c.BindJSON(&body)
+
+	//find post with id
+	initialize.DB.First(&author, id)
+
+	//update
+	initialize.DB.Model(&author).Updates(models.Author{Name: body.Name, Books: []models.Book{}})
+	c.IndentedJSON(200, gin.H{
+		"author":  author,
+		"message": "Author updated successfully",
+	})
+
+}
+
+func AuthorDelete(c *gin.Context) {
+	id := c.Param("id")
+	var author models.Author
+	initialize.DB.First(&author, id)
+	initialize.DB.Delete(&author)
+	c.IndentedJSON(200, gin.H{
+		"message": "Author deleted successfully",
 	})
 }
