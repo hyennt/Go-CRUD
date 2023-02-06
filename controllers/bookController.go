@@ -37,7 +37,13 @@ func BookShowByID(c *gin.Context) {
 	var book models.Book
 	initialize.DB.First(&book, id)
 	c.IndentedJSON(200, gin.H{
-		"book": book,
+		"book":   book,
+		"author": "/api/author/author_id",
+		"links": []gin.H{
+			{
+				"method":      "GET",
+				"description": "Get id of author related to ID book"},
+		},
 	})
 }
 
