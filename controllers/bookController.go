@@ -3,6 +3,7 @@ package controllers
 import (
 	"go-crud/initialize"
 	"go-crud/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,26 +38,43 @@ func BookCreate(c *gin.Context) {
 
 func BookShowByID(c *gin.Context) {
 	id := c.Param("id")
+	//authorId := c.Param("authorId")
+	//categoryId := c.Param("categoryId")
 	var book models.Book
+	var author models.Author
+	var category models.Category
 	initialize.DB.First(&book, id)
+	initialize.DB.First(&author, book.AuthorId)
+	author_ID := strconv.Itoa(int(book.AuthorId))
+	initialize.DB.First(&category, book.CategoryId)
+	category_ID := strconv.Itoa(int(book.CategoryId))
 	c.IndentedJSON(200, gin.H{
 		"data": []gin.H{
 			{
 				"book": book,
 			},
 		},
+
 		"links": []gin.H{
 			{
-				"method":      "GET",
-				"author_path": "/api/author/author_id",
-				"author_id":   book.AuthorId,
+				"self":   "http://localhost:3000/api/book/" + id,
+				"method": "GET",
 			},
 		},
-		"links_category": []gin.H{
+
+		"attributed_by": []gin.H{
 			{
-				"method":        "GET",
-				"category_path": "/api/category/category_id",
-				"category_id":   book.CategoryId,
+				"author_info":      author,
+				"method":           "GET",
+				"author_self_link": "http://localhost:3000/api/author/" + author_ID,
+			},
+		},
+
+		"Related_to": []gin.H{
+			{
+				"category_info":      category,
+				"method":             "GET",
+				"category_self_link": "http://localhost:3000/api/category/" + category_ID,
 			},
 		},
 	})
