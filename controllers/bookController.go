@@ -49,34 +49,30 @@ func BookShowByID(c *gin.Context) {
 	initialize.DB.First(&category, book.CategoryId)
 	category_ID := strconv.Itoa(int(book.CategoryId))
 	c.IndentedJSON(200, gin.H{
-		"data": []gin.H{
+		"message": "Book found successfully",
+		"error":   false,
+		"data":    book,
+		"links_related": []gin.H{
+			{"method": "GET"},
 			{
-				"book": book,
+				"self_URL": "http://localhost:3000/api/book/" + id,
+			},
+			{
+				"authors_URL": "http://localhost:3000/api/author/" + author_ID,
+			},
+			{
+				"categories_URL": "http://localhost:3000/api/category/" + category_ID,
 			},
 		},
 
-		"links": []gin.H{
-			{
-				"self":   "http://localhost:3000/api/book/" + id,
-				"method": "GET",
-			},
-		},
+		// "data": []gin.H{
+		// 	{
+		// 		"book":          book,
+		// 		"author_info":   author,
+		// 		"category_info": category,
+		// 	},
+		// },
 
-		"attributed_by": []gin.H{
-			{
-				"author_info":      author,
-				"method":           "GET",
-				"author_self_link": "http://localhost:3000/api/author/" + author_ID,
-			},
-		},
-
-		"Related_to": []gin.H{
-			{
-				"category_info":      category,
-				"method":             "GET",
-				"category_self_link": "http://localhost:3000/api/category/" + category_ID,
-			},
-		},
 	})
 }
 
