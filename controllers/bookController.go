@@ -8,6 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Models []Models
+
+type Link struct {
+	Rel  string
+	Path string
+}
+
+type Meta struct {
+	Description string
+	Keywords    []string
+}
+
 func BookGetting(c *gin.Context) {
 	var books []models.Book
 	initialize.DB.Find(&books)
@@ -45,6 +57,7 @@ func BookShowByID(c *gin.Context) {
 	var category models.Category
 	initialize.DB.First(&book, id)
 	initialize.DB.First(&author, book.AuthorId)
+
 	author_ID := strconv.Itoa(int(book.AuthorId))
 	initialize.DB.First(&category, book.CategoryId)
 	category_ID := strconv.Itoa(int(book.CategoryId))
@@ -76,6 +89,97 @@ func BookShowByID(c *gin.Context) {
 	})
 }
 
+// func LinkBuilder(c *gin.Context) {
+// 	var book []models.Book
+// 	initialize.DB.Find(&book)
+// 	c.IndentedJSON(200, gin.H{
+// 		"message": "Book found successfully",
+// 		"data":    book,
+// 	})
+// }
+
+func BookBuilder(book *models.Book, rel string) *Link {
+	return &Link{
+
+		Rel:  rel,
+		Path: "/api/book/" + strconv.Itoa(int(book.ID)),
+	}
+}
+
+func AuthorBuilder(author *models.Author, rel string) *Link {
+	return &Link{
+		Rel:  rel,
+		Path: "/api/author/" + strconv.Itoa(int(author.ID)),
+	}
+}
+
+func CategoryBuilder(category *models.Category, rel string) *Link {
+	return &Link{
+		Rel:  rel,
+		Path: "/api/category/" + strconv.Itoa(int(category.ID)),
+	}
+}
+
+func SpecifyModelInfo(path_name string, author *models.Author) string {
+	return path_name + strconv.Itoa(int(author.ID))
+}
+
+func BuildMeta() *Meta {
+	return &Meta{
+		//Description: "This is a description",
+		Keywords: []string{
+			"book",
+			"author",
+			"category",
+		},
+	}
+}
+
+func BookDetail(c *gin.Context) {
+	id := c.Param("id")
+	var book []models.Book
+	var author []models.Author
+	var category []models.Category
+
+	initialize.DB.Find(&book)
+	initialize.DB.Find(&author)
+	initialize.DB.Find(&category)
+
+	initialize.DB.First(&book, id)
+
+	meta := BuildMeta()
+	path_builder := pathBuilder(meta.Keywords[0], "Self", c)
+	links := []*Link{
+		BookBuilder(&book[0], "self"),
+		AuthorBuilder(&author[0], "author"),
+		CategoryBuilder(&category[0], "category"),
+	}
+	c.IndentedJSON(200, gin.H{
+		"Links": gin.H{
+			"_Self": gin.H{
+				"method": "GET",
+				"self":   links[0].Path,
+			},
+			"Author": gin.H{
+				"method": "GET",
+				"author": links[1].Path,
+			},
+			"Category": gin.H{
+				"method":   "GET",
+				"category": links[2].Path,
+			},
+		},
+		"Meta":        meta,
+		"Test":        meta.Keywords[1],
+		"PathBuilder": path_builder,
+	})
+
+}
+
+func pathBuilder(entity string, path_name string, c *gin.Context) string {
+	return "/api/" + entity + "/" + path_name
+}
+
 func BookDelete(c *gin.Context) {
 	id := c.Param("id")
 	var book models.Book
@@ -103,3 +207,11 @@ func BookUpdate(c *gin.Context) {
 		"bookUpdated": book,
 	})
 }
+
+// func post_as_dict(posts, c *gin.Context){
+// 	c.IndentedJSON(200, gin.H{
+// 		"post_id": posts.ID,
+// 		"post_title": posts.Title,
+// 		"post_body": posts.Body,
+// 	})
+// }
