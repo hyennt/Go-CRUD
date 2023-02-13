@@ -125,6 +125,16 @@ func GetAuthorID(author *models.Author) string {
 	return author_model
 }
 
+func GetCategoryID(category *models.Category) string {
+	category_model := strconv.Itoa(int(category.ID))
+	return category_model
+}
+
+func GetBookID(book *models.Book) string {
+	book_model := strconv.Itoa(int(book.ID))
+	return book_model
+}
+
 func GetRouteDomain() *Meta {
 	return &Meta{
 		//Description: "This is a description",
@@ -149,30 +159,31 @@ func BookDetail(c *gin.Context) {
 	initialize.DB.First(&book, id)
 
 	meta := GetRouteDomain()
-	path_builder := pathBuilder("", meta.Keywords[1], GetAuthorID(&author[0]), c) // "/api/author/:id"
-	links := []*Link{
-		BookBuilder(&book[0], "self"),
-		AuthorBuilder(&author[0], "author"),
-		CategoryBuilder(&category[0], "category"),
-	}
+	book_link := pathBuilder("", meta.Keywords[0], GetBookID(&book[0]), c)
+	author_link := pathBuilder("", meta.Keywords[1], GetAuthorID(&author[0]), c) // "/api/author/:id"
+	category_link := pathBuilder("", meta.Keywords[2], GetCategoryID(&category[0]), c)
+
+	// links := []*Link{
+	// 	BookBuilder(&book[0], "self"),
+	// 	AuthorBuilder(&author[0], "author"),
+	// 	CategoryBuilder(&category[0], "category"),
+	// }
+
 	c.IndentedJSON(200, gin.H{
 		"Links": gin.H{
 			"_Self": gin.H{
 				"method": "GET",
-				"self":   links[0].Path,
+				"self":   book_link,
 			},
 			"Author": gin.H{
 				"method": "GET",
-				"author": links[1].Path,
+				"author": author_link,
 			},
 			"Category": gin.H{
 				"method":   "GET",
-				"category": links[2].Path,
+				"category": category_link,
 			},
 		},
-		"Meta":        meta,
-		"Test":        meta.Keywords[1],
-		"PathBuilder": path_builder,
 	})
 
 }

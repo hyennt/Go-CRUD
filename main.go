@@ -56,7 +56,7 @@ func main() {
 			category.PUT("/update/:id", controllers.CategoryUpdate)
 			category.DELETE("/delete/:id", controllers.CategoryDelete)
 		}
-		test := api.Group("/test")
+		test := api.Group("/books")
 		{
 			test.GET("/", controllers.BookDetail)
 		}
