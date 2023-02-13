@@ -120,11 +120,12 @@ func CategoryBuilder(category *models.Category, rel string) *Link {
 	}
 }
 
-func SpecifyModelInfo(path_name string, author *models.Author) string {
-	return path_name + strconv.Itoa(int(author.ID))
+func GetAuthorID(author *models.Author) string {
+	author_model := strconv.Itoa(int(author.ID))
+	return author_model
 }
 
-func BuildMeta() *Meta {
+func GetRouteDomain() *Meta {
 	return &Meta{
 		//Description: "This is a description",
 		Keywords: []string{
@@ -147,8 +148,8 @@ func BookDetail(c *gin.Context) {
 
 	initialize.DB.First(&book, id)
 
-	meta := BuildMeta()
-	path_builder := pathBuilder(meta.Keywords[0], "Self", c)
+	meta := GetRouteDomain()
+	path_builder := pathBuilder("", meta.Keywords[1], GetAuthorID(&author[0]), c) // "/api/author/:id"
 	links := []*Link{
 		BookBuilder(&book[0], "self"),
 		AuthorBuilder(&author[0], "author"),
@@ -176,8 +177,12 @@ func BookDetail(c *gin.Context) {
 
 }
 
-func pathBuilder(entity string, path_name string, c *gin.Context) string {
-	return "/api/" + entity + "/" + path_name
+func pathBuilder(domain string, entity string, path_name string, c *gin.Context) string {
+	return "/api" + domain + "/" + entity + "/" + path_name
+}
+
+func Final_Path(c *gin.Context) string {
+	return c.Request.URL.Path
 }
 
 func BookDelete(c *gin.Context) {
@@ -207,11 +212,3 @@ func BookUpdate(c *gin.Context) {
 		"bookUpdated": book,
 	})
 }
-
-// func post_as_dict(posts, c *gin.Context){
-// 	c.IndentedJSON(200, gin.H{
-// 		"post_id": posts.ID,
-// 		"post_title": posts.Title,
-// 		"post_body": posts.Body,
-// 	})
-// }
