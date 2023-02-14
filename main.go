@@ -15,52 +15,55 @@ func init() {
 func main() {
 
 	r := gin.Default()
-	// r.POST("/posts", controllers.PostCreate)
-	// r.GET("/getPost", controllers.PostGetting)
-	// r.GET("/getPost/:id", controllers.PostShowByID)
-	// r.PUT("/update/:id", controllers.PostUpdate)
-	// r.DELETE("/delete/:id", controllers.PostDelete)
-	// listen and serve on 0.0.0.0:8080
+
+	type x struct {
+		Path       string
+		Handler    func(*gin.Context)
+		HttpMethod string
+	}
+
+	// mapx := make(map[string]*x)
+	// mapx["book_detail"] = &x{
+	// 	Path:       "/bookdetail",
+	// 	HttpMethod: "GET",
+	// 	Handler:    controllers.BookDetail,
+	// }
+	// mapx["author_detail"] = &x{
+	// 	Path:       "/authordetail",
+	// 	HttpMethod: "GET",
+	// 	Handler:    controllers.AuthorGetting,
+	// }
+	// mapx["category_detail"] = &x{
+	// 	Path:       "/category_detail",
+	// 	HttpMethod: "GET",
+	// 	Handler:    controllers.CategoryGetting,
+	// }
+
+	var routeConfig = map[string]*x{
+		"book_detail": &x{
+			Path:       "/book_detail",
+			HttpMethod: "GET",
+			Handler:    controllers.BookDetail,
+		},
+		"author_detail": &x{
+			Path:       "/author_detail/",
+			HttpMethod: "GET",
+			Handler:    controllers.AuthorShowByID,
+		},
+		"category_detail": &x{
+			Path:       "/category_detail",
+			HttpMethod: "GET",
+			Handler:    controllers.CategoryShowByID,
+		},
+	}
 
 	api := r.Group("/api")
-	{
-		post := api.Group("/post")
-		{
-			post.GET("/", controllers.PostGetting)
-			post.GET("/:id", controllers.PostShowByID)
-			post.POST("create", controllers.PostCreate)
-			post.PUT("/update/:id", controllers.PostUpdate)
-			post.DELETE("/delete/:id", controllers.PostDelete)
-		}
-		author := api.Group("/author")
-		{
-			author.GET("/", controllers.AuthorGetting)
-			author.POST("/create", controllers.AuthorCreate)
-			author.GET("/:id", controllers.AuthorShowByID)
-			author.PUT("/update/:id", controllers.AuthorUpdate)
-			author.DELETE("/delete/:id", controllers.AuthorDelete)
-		}
-		book := api.Group("/book")
-		{
-			book.GET("/", controllers.BookGetting)
-			book.POST("/create", controllers.BookCreate)
-			book.GET("/:id", controllers.BookShowByID)
-			book.PUT("/update/:id", controllers.BookUpdate)
-			book.DELETE("/delete/:id", controllers.BookDelete)
-		}
-		category := api.Group("/category")
-		{
-			category.GET("/", controllers.CategoryGetting)
-			category.POST("/create", controllers.CategoryCreate)
-			category.GET("/:id", controllers.CategoryShowByID)
-			category.PUT("/update/:id", controllers.CategoryUpdate)
-			category.DELETE("/delete/:id", controllers.CategoryDelete)
-		}
-		test := api.Group("/books")
-		{
-			test.GET("/", controllers.BookDetail)
-		}
-
+	for _, v := range routeConfig {
+		api.Handle(v.HttpMethod, v.Path, v.Handler)
 	}
+	// for _, v := range mapx {
+	// 	api.Handle(v.HttpMethod, v.Path, v.Handler)
+	// }
 	r.Run()
+
 }

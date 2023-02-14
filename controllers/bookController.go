@@ -102,21 +102,21 @@ func BookBuilder(book *models.Book, rel string) *Link {
 	return &Link{
 
 		Rel:  rel,
-		Path: "/api/book/" + strconv.Itoa(int(book.ID)),
+		Path: "/api/book_detail/" + strconv.Itoa(int(book.ID)),
 	}
 }
 
 func AuthorBuilder(author *models.Author, rel string) *Link {
 	return &Link{
 		Rel:  rel,
-		Path: "/api/author/" + strconv.Itoa(int(author.ID)),
+		Path: "/api/author_detail/" + strconv.Itoa(int(author.ID)),
 	}
 }
 
 func CategoryBuilder(category *models.Category, rel string) *Link {
 	return &Link{
 		Rel:  rel,
-		Path: "/api/category/" + strconv.Itoa(int(category.ID)),
+		Path: "/api/category_detail/" + strconv.Itoa(int(category.ID)),
 	}
 }
 
@@ -163,11 +163,11 @@ func BookDetail(c *gin.Context) {
 	author_link := pathBuilder("", meta.Keywords[1], GetAuthorID(&author[0]), c) // "/api/author/:id"
 	category_link := pathBuilder("", meta.Keywords[2], GetCategoryID(&category[0]), c)
 
-	// links := []*Link{
-	// 	BookBuilder(&book[0], "self"),
-	// 	AuthorBuilder(&author[0], "author"),
-	// 	CategoryBuilder(&category[0], "category"),
-	// }
+	links := []*Link{
+		BookBuilder(&book[0], "self"),
+		AuthorBuilder(&author[0], "author"),
+		CategoryBuilder(&category[0], "category"),
+	}
 
 	c.IndentedJSON(200, gin.H{
 		"Links": gin.H{
@@ -183,6 +183,7 @@ func BookDetail(c *gin.Context) {
 				"method":   "GET",
 				"category": category_link,
 			},
+			"Links_SELF": links,
 		},
 	})
 
