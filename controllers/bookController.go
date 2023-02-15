@@ -77,30 +77,11 @@ func BookShowByID(c *gin.Context) {
 				"categories_URL": "http://localhost:3000/api/category/" + category_ID,
 			},
 		},
-
-		// "data": []gin.H{
-		// 	{
-		// 		"book":          book,
-		// 		"author_info":   author,
-		// 		"category_info": category,
-		// 	},
-		// },
-
 	})
 }
 
-// func LinkBuilder(c *gin.Context) {
-// 	var book []models.Book
-// 	initialize.DB.Find(&book)
-// 	c.IndentedJSON(200, gin.H{
-// 		"message": "Book found successfully",
-// 		"data":    book,
-// 	})
-// }
-
 func BookBuilder(book *models.Book, rel string) *Link {
 	return &Link{
-
 		Rel:  rel,
 		Path: "/api/book_detail/" + strconv.Itoa(int(book.ID)),
 	}
@@ -135,66 +116,76 @@ func GetBookID(book *models.Book) string {
 	return book_model
 }
 
-func GetRouteDomain() *Meta {
-	return &Meta{
-		//Description: "This is a description",
-		Keywords: []string{
-			"book",
-			"author",
-			"category",
-		},
+// var configMap_ = map[models]string {
+// 	&models.Book:     "/api/book_detail/",
+// 	&models.Author:   "/api/author_detail/",
+// 	&models.Category: "/api/category_detail/",
+// }
+
+// var configMap[model]string =  {
+// 	model.book: "/api/book_detail/",
+// }
+// func buildDetailLink(model any, routeMap) string {
+// 	return {
+// 		path: routeMap[model] + strconv.Itoa(int(model.ID)),
+// 	}
+// }
+
+var configMap = map[interface{}]string{
+	&models.Book{}:     "/api/book_detail/",
+	&models.Author{}:   "/api/author_detail/",
+	&models.Category{}: "/api/category_detail/",
+}
+
+var routeMap = map[string]string{
+	"book":     "book/",
+	"author":   "author/",
+	"category": "category/",
+}
+
+// func buildDetailLink_( configMap map[interface{}]string, routeMap map[string]string) string {
+// 	return {
+// 		path := routeMap[model] + strconv.Itoa(int(model.ID)),
+
+// 	}
+// }
+
+func buildDetailLink(model interface{}, configMap map[interface{}]string, routeMap map[string]string, id string) string {
+	return configMap[0] + id
+}
+
+// func buildDetailLink(model interface{},
+// 	configMap map[interface{}]string, routeMap map[interface{}]string, id string) string {
+// 	return configMap[model] + routeMap[model] + id
+// }
+
+func BookDetail(routeMap map[string]string) func(*gin.Context) {
+	return func(c *gin.Context) {
+		id := c.Param("id")
+		var books []models.Book
+		var authors []models.Author
+		var categories []models.Category
+
+		initialize.DB.Find(&books)
+		// pp.Fprint(&books)
+		initialize.DB.Find(&authors)
+		initialize.DB.Find(&categories)
+		// initialize.DB.First(&books, id)
+
+		c.IndentedJSON(200, gin.H{
+			"data": books,
+			"Links": gin.H{
+				"_Self": gin.H{
+					"method": "GET",
+					"self":   buildDetailLink(&models.Book{}, configMap, routeMap, id),
+				},
+				// "author": gin.H{
+				// 	"method": "GET",
+				// 	"author": buildDetailLink_(authors, routeMap),
+				// },
+			},
+		})
 	}
-}
-
-func BookDetail(c *gin.Context) {
-	id := c.Param("id")
-	var book []models.Book
-	var author []models.Author
-	var category []models.Category
-
-	initialize.DB.Find(&book)
-	initialize.DB.Find(&author)
-	initialize.DB.Find(&category)
-
-	initialize.DB.First(&book, id)
-
-	meta := GetRouteDomain()
-	book_link := pathBuilder("", meta.Keywords[0], GetBookID(&book[0]), c)
-	author_link := pathBuilder("", meta.Keywords[1], GetAuthorID(&author[0]), c) // "/api/author/:id"
-	category_link := pathBuilder("", meta.Keywords[2], GetCategoryID(&category[0]), c)
-
-	links := []*Link{
-		BookBuilder(&book[0], "self"),
-		AuthorBuilder(&author[0], "author"),
-		CategoryBuilder(&category[0], "category"),
-	}
-
-	c.IndentedJSON(200, gin.H{
-		"Links": gin.H{
-			"_Self": gin.H{
-				"method": "GET",
-				"self":   book_link,
-			},
-			"Author": gin.H{
-				"method": "GET",
-				"author": author_link,
-			},
-			"Category": gin.H{
-				"method":   "GET",
-				"category": category_link,
-			},
-			"Links_SELF": links,
-		},
-	})
-
-}
-
-func pathBuilder(domain string, entity string, path_name string, c *gin.Context) string {
-	return "/api" + domain + "/" + entity + "/" + path_name
-}
-
-func Final_Path(c *gin.Context) string {
-	return c.Request.URL.Path
 }
 
 func BookDelete(c *gin.Context) {
