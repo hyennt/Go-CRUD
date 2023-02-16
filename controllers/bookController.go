@@ -3,6 +3,7 @@ package controllers
 import (
 	"go-crud/initialize"
 	"go-crud/models"
+	"reflect"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -102,18 +103,18 @@ func CategoryBuilder(category *models.Category, rel string) *Link {
 }
 
 func GetAuthorID(author *models.Author) string {
-	author_model := strconv.Itoa(int(author.ID))
-	return author_model
+	author_id := strconv.Itoa(int(models.Book{}.AuthorId))
+	return author_id
 }
 
 func GetCategoryID(category *models.Category) string {
-	category_model := strconv.Itoa(int(category.ID))
-	return category_model
+	category_id := strconv.Itoa(int(models.Book{}.CategoryId))
+	return category_id
 }
 
 func GetBookID(book *models.Book) string {
-	book_model := strconv.Itoa(int(book.ID))
-	return book_model
+	book_id := strconv.Itoa(int(book.ID))
+	return book_id
 }
 
 // var configMap_ = map[models]string {
@@ -131,16 +132,25 @@ func GetBookID(book *models.Book) string {
 // 	}
 // }
 
-var configMap = map[interface{}]string{
-	&models.Book{}:     "/api/book_detail/",
-	&models.Author{}:   "/api/author_detail/",
-	&models.Category{}: "/api/category_detail/",
-}
-
 var routeMap = map[string]string{
 	"book":     "book/",
 	"author":   "author/",
 	"category": "category/",
+}
+
+func getType(in interface{}) string {
+	return reflect.TypeOf(in).String()
+}
+
+var configMap = map[interface{}]string{
+	getType(models.Book{}):     "/api/book_detail/",
+	getType(models.Author{}):   "/api/author_detail/",
+	getType(models.Category{}): "/api/category_detail/",
+}
+
+func buildDetailLink(model interface{}, id string) string {
+	prefix := configMap[getType(model)]
+	return prefix + id
 }
 
 // func buildDetailLink_( configMap map[interface{}]string, routeMap map[string]string) string {
@@ -150,10 +160,6 @@ var routeMap = map[string]string{
 // 	}
 // }
 
-func buildDetailLink(model interface{}, configMap map[interface{}]string, routeMap map[string]string, id string) string {
-	return configMap[0] + id
-}
-
 // func buildDetailLink(model interface{},
 // 	configMap map[interface{}]string, routeMap map[interface{}]string, id string) string {
 // 	return configMap[model] + routeMap[model] + id
@@ -161,7 +167,7 @@ func buildDetailLink(model interface{}, configMap map[interface{}]string, routeM
 
 func BookDetail(routeMap map[string]string) func(*gin.Context) {
 	return func(c *gin.Context) {
-		id := c.Param("id")
+		//id := c.Param("id")
 		var books []models.Book
 		var authors []models.Author
 		var categories []models.Category
@@ -177,7 +183,7 @@ func BookDetail(routeMap map[string]string) func(*gin.Context) {
 			"Links": gin.H{
 				"_Self": gin.H{
 					"method": "GET",
-					"self":   buildDetailLink(&models.Book{}, configMap, routeMap, id),
+					"self":   buildDetailLink(models.Book{}, GetBookID(&books[0])),
 				},
 				// "author": gin.H{
 				// 	"method": "GET",

@@ -39,9 +39,9 @@ func main() {
 			Handler:    controllers.BookDetail(routeMap),
 		},
 		"author_detail": &x{
-			Path:       "/author_detail/",
+			Path:       "/author_detail/:id",
 			HttpMethod: "GET",
-			Handler:    controllers.AuthorShowByID,
+			Handler:    controllers.BookShowByID,
 		},
 		"category_detail": &x{
 			Path:       "/category_detail",
