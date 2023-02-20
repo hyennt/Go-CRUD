@@ -48,30 +48,22 @@ func main() {
 			HttpMethod: "GET",
 			Handler:    controllers.CategoryShowByID,
 		},
+		"signup": &x{
+			Path:       "/signup",
+			HttpMethod: "POST",
+			Handler:    controllers.SignUp,
+		},
+		"delete_user": &x{
+			Path:       "/delete_user_all",
+			HttpMethod: "DELETE",
+			Handler:    controllers.UserDelete,
+		},
 	}
-	// var linkConfig = map[string]*link{
-	// 	"book_detail": &link{
-	// 		Path:    "/book_detail",
-	// 		ModelId: strconv.Itoa(1),
-	// 	},
-	// }
-
-	// var LinkBuilder = func() []x {
-	// 	var links []x
-	// 	for _, v := range routeConfig {
-	// 		links = append(links, *v)
-	// 	}
-	// 	return links
-	// }
 
 	api := r.Group("/api")
 	for _, v := range routeConfig {
 		api.Handle(v.HttpMethod, v.Path, v.Handler)
 	}
-
-	// for _, v := range mapx {
-	// 	api.Handle(v.HttpMethod, v.Path, v.Handler)
-	// }
 	r.Run()
 
 }

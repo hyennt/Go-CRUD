@@ -81,6 +81,38 @@ func BookShowByID(c *gin.Context) {
 	})
 }
 
+func BookShowDetail(c *gin.Context) {
+	id := c.Param("id")
+	//authorId := c.Param("authorId")
+	//categoryId := c.Param("categoryId")
+	var book models.Book
+	var author models.Author
+	var category models.Category
+	initialize.DB.First(&book, id)
+	initialize.DB.First(&author, book.AuthorId)
+
+	author_ID := strconv.Itoa(int(book.AuthorId))
+	initialize.DB.First(&category, book.CategoryId)
+	category_ID := strconv.Itoa(int(book.CategoryId))
+	c.IndentedJSON(200, gin.H{
+		"message": "Book found successfully",
+		"error":   false,
+		"data":    book,
+		"links_related": []gin.H{
+			{"method": "GET"},
+			{
+				"self_URL": "http://localhost:3000/api/book/" + id,
+			},
+			{
+				"authors_URL": "http://localhost:3000/api/author/" + author_ID,
+			},
+			{
+				"categories_URL": "http://localhost:3000/api/category/" + category_ID,
+			},
+		},
+	})
+}
+
 func BookBuilder(book *models.Book, rel string) *Link {
 	return &Link{
 		Rel:  rel,
@@ -116,21 +148,6 @@ func GetBookID(book *models.Book) string {
 	book_id := strconv.Itoa(int(book.ID))
 	return book_id
 }
-
-// var configMap_ = map[models]string {
-// 	&models.Book:     "/api/book_detail/",
-// 	&models.Author:   "/api/author_detail/",
-// 	&models.Category: "/api/category_detail/",
-// }
-
-// var configMap[model]string =  {
-// 	model.book: "/api/book_detail/",
-// }
-// func buildDetailLink(model any, routeMap) string {
-// 	return {
-// 		path: routeMap[model] + strconv.Itoa(int(model.ID)),
-// 	}
-// }
 
 var routeMap = map[string]string{
 	"book":     "book/",
@@ -171,15 +188,15 @@ func BookDetail(routeMap map[string]string) func(*gin.Context) {
 			"Links": gin.H{
 				"_Self": gin.H{
 					"method": "GET",
-					"self":   buildDetailLink(models.Book{}, GetBookID(&books[0])),
+					"self":   buildDetailLink(models.Book{}, GetBookID(&books[9])),
 				},
 				"Author": gin.H{
 					"method": "GET",
-					"author": buildDetailLink(models.Author{}, GetAuthorID(&authors[0])),
+					"author": buildDetailLink(models.Author{}, GetAuthorID(&authors[5])),
 				},
 				"Category": gin.H{
 					"method":   "GET",
-					"category": buildDetailLink(models.Category{}, GetCategoryID(&categories[0])),
+					"category": buildDetailLink(models.Category{}, GetCategoryID(&categories[1])),
 				},
 			},
 		})
