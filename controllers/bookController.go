@@ -153,18 +153,6 @@ func buildDetailLink(model interface{}, id string) string {
 	return prefix + id
 }
 
-// func buildDetailLink_( configMap map[interface{}]string, routeMap map[string]string) string {
-// 	return {
-// 		path := routeMap[model] + strconv.Itoa(int(model.ID)),
-
-// 	}
-// }
-
-// func buildDetailLink(model interface{},
-// 	configMap map[interface{}]string, routeMap map[interface{}]string, id string) string {
-// 	return configMap[model] + routeMap[model] + id
-// }
-
 func BookDetail(routeMap map[string]string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		//id := c.Param("id")
@@ -185,10 +173,14 @@ func BookDetail(routeMap map[string]string) func(*gin.Context) {
 					"method": "GET",
 					"self":   buildDetailLink(models.Book{}, GetBookID(&books[0])),
 				},
-				// "author": gin.H{
-				// 	"method": "GET",
-				// 	"author": buildDetailLink_(authors, routeMap),
-				// },
+				"Author": gin.H{
+					"method": "GET",
+					"author": buildDetailLink(models.Author{}, GetAuthorID(&authors[0])),
+				},
+				"Category": gin.H{
+					"method":   "GET",
+					"category": buildDetailLink(models.Category{}, GetCategoryID(&categories[0])),
+				},
 			},
 		})
 	}
